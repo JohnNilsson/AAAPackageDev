@@ -33,7 +33,7 @@ class ConvertFileCommand(WindowAndTextCommand):
     # name is for the quick panel; others are arguments used when running the command again
     target_list = [dict(name=fmt.name,
                         kwargs={"target_format": fmt.ext})
-                   for fmt in dumpers.get.values()]
+                   for fmt in list(dumpers.get.values())]
     for i, itm in enumerate(target_list):
         if itm['name'] == "YAML":
             # Hardcode YAML block style, who knows if anyone can use this
@@ -128,7 +128,7 @@ class ConvertFileCommand(WindowAndTextCommand):
         # Auto-detect the file type if it's not specified
         if not source_format:
             output.write("Input type not specified, auto-detecting...")
-            for Loader in loaders.get.values():
+            for Loader in list(loaders.get.values()):
                 if Loader.file_is_valid(self.view):
                     source_format = Loader.ext
                     output.write_line(' %s\n' % Loader.name)
@@ -208,7 +208,7 @@ class ConvertFileCommand(WindowAndTextCommand):
         data = None
         try:
             data = loader.load(*args, **kwargs)
-        except NotImplementedError, e:
+        except NotImplementedError as e:
             # use NotImplementedError to make the handler report the message as it pleases
             output.write_line(str(e))
             self.status(str(e), file_path)
@@ -236,4 +236,4 @@ class ConvertFileCommand(WindowAndTextCommand):
 
     def status(self, msg, file_path=None):
         sublime.status_message(msg)
-        print "[PackageDev] " + msg + (" (%s)" % file_path if file_path is not None else "")
+        print("[PackageDev] " + msg + (" (%s)" % file_path if file_path is not None else ""))
