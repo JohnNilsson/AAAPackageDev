@@ -16,7 +16,8 @@ from ordereddict_yaml import OrderedDictSafeDumper
 from .fileconv import loaders, dumpers
 from .scope_data import COMPILED_HEADS
 
-PLUGIN_NAME = os.getcwd().replace(sublime.packages_path(), '')[1:]  # os.path.abspath(os.path.dirname(__file__))
+here = os.path.split(__file__)[0]
+PLUGIN_NAME = os.path.split(here)[1]
 
 BASE_SYNTAX_LANGUAGE = "Packages/%s/Syntax Definitions/Sublime Text Syntax Def (%%s).tmLanguage" % PLUGIN_NAME
 
