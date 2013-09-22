@@ -1,6 +1,6 @@
 from sublime import Region, Window
-from ._view import ViewSettings, unset_read_only, in_one_edit, append, clear, get_text
-
+from ._view import ViewSettings, unset_read_only, append, clear, get_text
+from sublime_plugin import TextCommand
 
 class OutputPanel(object):
     """This class represents an output panel (which are used for e.g. build systems).
@@ -43,12 +43,6 @@ class OutputPanel(object):
             A boolean whether the output panel should be read only.
             You usually want this to be true.
             Can be modified with ``self.view.set_read_only()`` when needed.
-
-    Useful attributes:
-
-        view
-            The view handle of the output panel. Can be passed to
-            ``in_one_edit(output.view)`` to group modifications for example.
 
     Defines the following methods:
 
@@ -163,6 +157,10 @@ class OutputPanel(object):
             Set the selection to the start, so that next_result will work as
             expected.
         """
-        with in_one_edit(self.view):
-            self.view.sel().clear()
-            self.view.sel().add(Region(0))
+        self.view.run_command("lib_view_output_panel_finish")
+
+class LibViewOutputPanelFinishCommand(TextCommand):
+    """Helper class for finish()"""
+    def run(self, edit):
+        self.view.sel().clear()
+        self.view.sel().add(Region(0))
