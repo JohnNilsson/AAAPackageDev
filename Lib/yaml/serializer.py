@@ -8,7 +8,7 @@ from .nodes import *
 class SerializerError(YAMLError):
     pass
 
-class Serializer(object):
+class Serializer:
 
     ANCHOR_TEMPLATE = 'id%03d'
 

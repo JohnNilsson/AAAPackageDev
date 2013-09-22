@@ -69,7 +69,7 @@ from .scanner import *
 class ParserError(MarkedYAMLError):
     pass
 
-class Parser(object):
+class Parser:
     # Since writing a recursive-descendant parser is a straightforward task, we
     # do not give many comments here.
 
@@ -233,7 +233,7 @@ class Parser(object):
                 handle, prefix = token.value
                 if handle in self.tag_handles:
                     raise ParserError(None, None,
-                            "duplicate tag handle %r" % handle.encode('utf-8'),
+                            "duplicate tag handle %r" % handle,
                             token.start_mark)
                 self.tag_handles[handle] = prefix
         if self.tag_handles:
@@ -303,12 +303,12 @@ class Parser(object):
                 if handle is not None:
                     if handle not in self.tag_handles:
                         raise ParserError("while parsing a node", start_mark,
-                                "found undefined tag handle %r" % handle.encode('utf-8'),
+                                "found undefined tag handle %r" % handle,
                                 tag_mark)
                     tag = self.tag_handles[handle]+suffix
                 else:
                     tag = suffix
-            #if tag == u'!':
+            #if tag == '!':
             #    raise ParserError("while parsing a node", start_mark,
             #            "found non-specific tag '!'", tag_mark,
             #            "Please check 'http://pyyaml.org/wiki/YAMLNonSpecificTag' and share your opinion.")

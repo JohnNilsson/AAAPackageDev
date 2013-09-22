@@ -31,7 +31,7 @@ class ReaderError(YAMLError):
         self.reason = reason
 
     def __str__(self):
-        if isinstance(self.character, str):
+        if isinstance(self.character, bytes):
             return "'%s' codec can't decode byte #x%02x: %s\n"  \
                     "  in \"%s\", position %d"    \
                     % (self.encoding, ord(self.character), self.reason,
@@ -44,13 +44,13 @@ class ReaderError(YAMLError):
 
 class Reader(object):
     # Reader:
-    # - determines the data encoding and converts it to unicode,
+    # - determines the data encoding and converts it to a unicode string,
     # - checks if characters are in allowed range,
     # - adds '\0' to the end.
 
     # Reader accepts
+    #  - a `bytes` object,
     #  - a `str` object,
-    #  - a `unicode` object,
     #  - a file-like object with its `read` method returning `str`,
     #  - a file-like object with its `read` method returning `unicode`.
 
@@ -73,15 +73,15 @@ class Reader(object):
             self.name = "<unicode string>"
             self.check_printable(stream)
             self.buffer = stream+'\0'
-        elif isinstance(stream, str):
-            self.name = "<string>"
+        elif isinstance(stream, bytes):
+            self.name = "<byte string>"
             self.raw_buffer = stream
             self.determine_encoding()
         else:
             self.stream = stream
             self.name = getattr(stream, 'name', "<file>")
             self.eof = False
-            self.raw_buffer = ''
+            self.raw_buffer = None
             self.determine_encoding()
 
     def peek(self, index=0):
@@ -120,9 +120,9 @@ class Reader(object):
                     None, None)
 
     def determine_encoding(self):
-        while not self.eof and len(self.raw_buffer) < 2:
+        while not self.eof and (self.raw_buffer is None or len(self.raw_buffer) < 2):
             self.update_raw()
-        if not isinstance(self.raw_buffer, str):
+        if isinstance(self.raw_buffer, bytes):
             if self.raw_buffer.startswith(codecs.BOM_UTF16_LE):
                 self.raw_decode = codecs.utf_16_le_decode
                 self.encoding = 'utf-16-le'
@@ -156,7 +156,7 @@ class Reader(object):
                     data, converted = self.raw_decode(self.raw_buffer,
                             'strict', self.eof)
                 except UnicodeDecodeError as exc:
-                    character = exc.object[exc.start]
+                    character = self.raw_buffer[exc.start]
                     if self.stream is not None:
                         position = self.stream_pointer-len(self.raw_buffer)+exc.start
                     else:
@@ -174,12 +174,14 @@ class Reader(object):
                 self.raw_buffer = None
                 break
 
-    def update_raw(self, size=1024):
+    def update_raw(self, size=4096):
         data = self.stream.read(size)
-        if data:
-            self.raw_buffer += data
-            self.stream_pointer += len(data)
+        if self.raw_buffer is None:
+            self.raw_buffer = data
         else:
+            self.raw_buffer += data
+        self.stream_pointer += len(data)
+        if not data:
             self.eof = True
 
 #try:
