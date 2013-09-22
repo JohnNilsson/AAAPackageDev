@@ -13,8 +13,8 @@ from sublime_lib.view import OutputPanel, base_scope, get_viewport_coords, set_v
 from ordereddict import OrderedDict
 from ordereddict_yaml import OrderedDictSafeDumper
 
-from fileconv import loaders, dumpers
-from scope_data import COMPILED_HEADS
+from .fileconv import loaders, dumpers
+from .scope_data import COMPILED_HEADS
 
 PLUGIN_NAME = os.getcwd().replace(sublime.packages_path(), '')[1:]  # os.path.abspath(os.path.dirname(__file__))
 
